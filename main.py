@@ -1,27 +1,19 @@
-from selenium.webdriver import Chrome
-from bs4 import BeautifulSoup
-import requests
+#!/usr/bin/python
+from src.Webscrape import Webscrape
+from src.TOS import TOS
+def main():
+    #init helper objects
+    data = Webscrape()
+    broker = TOS()
 
-#constants
-chromeDriver ='C:\Program Files\Google\Chrome\Application\chromedriver.exe'
-tableXPath = '/html/body/form/div[3]/section/ul'
-scrapeURL = 'https://www.earningswhispers.com/calendar?sb=p&d=1&t=all'
+    tic = data.get_tickers()
 
-def get_tickers():
-    tickers = []
-    # Setup selenium and grab page to scrape
-    driver = Chrome(executable_path=chromeDriver)
-    driver.get(scrapeURL)
-    soup = BeautifulSoup(driver.page_source, "html.parser")
+    print("ticker,lastPrice,AverageDailyVolume")
+    for t in tic:
+        quote = str(broker.get_quote(t))
+        adv = broker.get_adv(t)
+        line = "{},{},{}".format(t,quote,adv)
+        print(line)
 
-    # Find the table of earnings tickers
-    # itterate over each ticker and load into table
-    table = soup.find_all('div',class_='ticker')
-    for row in table:
-        tickers.append(row.text.strip())
-    driver.quit()
-    return tickers
-
-tic = get_tickers()
-for t in tic:
-    print(t)
+if __name__ == "__main__":
+   main()
